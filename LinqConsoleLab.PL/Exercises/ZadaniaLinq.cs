@@ -208,7 +208,11 @@ public sealed class ZadaniaLinq {
     /// JOIN Zapisy z ON s.Id = z.StudentId;
     /// </summary>
     public IEnumerable<string> Zadanie11_PolaczStudentowIZapisy() {
-        throw Niezaimplementowano(nameof(Zadanie11_PolaczStudentowIZapisy));
+        // throw Niezaimplementowano(nameof(Zadanie11_PolaczStudentowIZapisy));
+        return
+            from s in DaneUczelni.Studenci
+            join z in DaneUczelni.Zapisy on s.Id equals z.StudentId
+            select string.Join(", ", s.Imie, s.Nazwisko, z.DataZapisu);
     }
 
     /// <summary>
@@ -223,7 +227,19 @@ public sealed class ZadaniaLinq {
     /// JOIN Przedmioty p ON p.Id = z.PrzedmiotId;
     /// </summary>
     public IEnumerable<string> Zadanie12_ParyStudentPrzedmiot() {
-        throw Niezaimplementowano(nameof(Zadanie12_ParyStudentPrzedmiot));
+        // throw Niezaimplementowano(nameof(Zadanie12_ParyStudentPrzedmiot));
+        return DaneUczelni.Zapisy
+            .Join(
+                DaneUczelni.Studenci,
+                z => z.StudentId,
+                s => s.Id,
+                (z, s) => new { z, s })
+            .Join(
+                DaneUczelni.Przedmioty,
+                z => z.z.PrzedmiotId,
+                p => p.Id,
+                (z, p) => new { z, p })
+            .Select(n  => string.Join(", ", n.z.s.Imie, n.z.s.Nazwisko, n.p.Nazwa));
     }
 
     /// <summary>
@@ -237,8 +253,18 @@ public sealed class ZadaniaLinq {
     /// GROUP BY p.Nazwa;
     /// </summary>
     public IEnumerable<string> Zadanie13_GrupowanieZapisowWedlugPrzedmiotu() {
-        throw Niezaimplementowano(nameof(Zadanie13_GrupowanieZapisowWedlugPrzedmiotu));
-    }
+        // throw Niezaimplementowano(nameof(Zadanie13_GrupowanieZapisowWedlugPrzedmiotu));
+        return
+            DaneUczelni.Zapisy
+                .Join(
+                    DaneUczelni.Przedmioty,
+                    z => z.PrzedmiotId,
+                    p => p.Id,
+                    (z, p) => new { z, p })
+                .GroupBy(n => n.p.Nazwa)
+                .Select(m => new { Nazwa = m.Key , Count = m.Count()})
+                .Select(n =>  string.Join(", ", n.Nazwa, n.Count));
+}
 
     /// <summary>
     /// Zadanie:
@@ -253,7 +279,14 @@ public sealed class ZadaniaLinq {
     /// GROUP BY p.Nazwa;
     /// </summary>
     public IEnumerable<string> Zadanie14_SredniaOcenaNaPrzedmiot() {
-        throw Niezaimplementowano(nameof(Zadanie14_SredniaOcenaNaPrzedmiot));
+        // throw Niezaimplementowano(nameof(Zadanie14_SredniaOcenaNaPrzedmiot));
+         return
+                from z in DaneUczelni.Zapisy
+                where z.OcenaKoncowa != null
+                join p in DaneUczelni.Przedmioty
+                    on z.PrzedmiotId equals p.Id
+                group z by p.Nazwa into g
+                select $"{g.Key}: {g.Average(x => x.OcenaKoncowa)}";
     }
 
     /// <summary>
@@ -268,7 +301,15 @@ public sealed class ZadaniaLinq {
     /// GROUP BY pr.Imie, pr.Nazwisko;
     /// </summary>
     public IEnumerable<string> Zadanie15_ProwadzacyILiczbaPrzedmiotow() {
-        throw Niezaimplementowano(nameof(Zadanie15_ProwadzacyILiczbaPrzedmiotow));
+        // throw Niezaimplementowano(nameof(Zadanie15_ProwadzacyILiczbaPrzedmiotow));
+        return
+            from pro in DaneUczelni.Prowadzacy
+            join prz in DaneUczelni.Przedmioty
+                on pro.Id equals prz.ProwadzacyId into gj
+            from prz in gj.DefaultIfEmpty()
+            group prz by new { pro.Imie, pro.Nazwisko }
+            into g
+            select $"{g.Key.Imie} {g.Key.Nazwisko}: {g.Count(x => x != null)}";
     }
 
     /// <summary>
