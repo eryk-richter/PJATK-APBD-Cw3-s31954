@@ -114,7 +114,12 @@ public sealed class ZadaniaLinq {
     /// FROM Prowadzacy;
     /// </summary>
     public IEnumerable<string> Zadanie06_CzyWszyscyProwadzacyMajaKatedre() {
-        throw Niezaimplementowano(nameof(Zadanie06_CzyWszyscyProwadzacyMajaKatedre));
+        // throw Niezaimplementowano(nameof(Zadanie06_CzyWszyscyProwadzacyMajaKatedre));
+        return 
+            DaneUczelni.Prowadzacy
+                .Any(n => n.Katedra != null || n.Katedra == "")
+                ? new List<string>(1) { "Tak" }
+                : new List<string>(1) { "Nie" };
     }
 
     /// <summary>
@@ -127,7 +132,12 @@ public sealed class ZadaniaLinq {
     /// WHERE CzyAktywny = 1;
     /// </summary>
     public IEnumerable<string> Zadanie07_LiczbaAktywnychZapisow() {
-        throw Niezaimplementowano(nameof(Zadanie07_LiczbaAktywnychZapisow));
+        // throw Niezaimplementowano(nameof(Zadanie07_LiczbaAktywnychZapisow));
+        var query =
+            from z in DaneUczelni.Zapisy
+            where z.CzyAktywny
+            select z;
+        return new List<string> {query.Count().ToString()};
     }
 
     /// <summary>
@@ -140,7 +150,12 @@ public sealed class ZadaniaLinq {
     /// ORDER BY Miasto;
     /// </summary>
     public IEnumerable<string> Zadanie08_UnikalneMiastaStudentow() {
-        throw Niezaimplementowano(nameof(Zadanie08_UnikalneMiastaStudentow));
+        // throw Niezaimplementowano(nameof(Zadanie08_UnikalneMiastaStudentow));
+        return
+            (from s in DaneUczelni.Studenci
+            select s.Miasto)
+            .Distinct()
+            .OrderBy(s => s);
     }
 
     /// <summary>
@@ -154,7 +169,13 @@ public sealed class ZadaniaLinq {
     /// ORDER BY DataZapisu DESC;
     /// </summary>
     public IEnumerable<string> Zadanie09_TrzyNajnowszeZapisy() {
-        throw Niezaimplementowano(nameof(Zadanie09_TrzyNajnowszeZapisy));
+        // throw Niezaimplementowano(nameof(Zadanie09_TrzyNajnowszeZapisy));
+        return 
+            from z in DaneUczelni.Zapisy
+                .Take(3)
+            orderby z.DataZapisu descending
+            select string.Join(", ", z.DataZapisu, "studentID: " + z.StudentId, "przedmiotID: " + z.PrzedmiotId);
+        
     }
 
     /// <summary>
@@ -169,7 +190,11 @@ public sealed class ZadaniaLinq {
     /// OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY;
     /// </summary>
     public IEnumerable<string> Zadanie10_DrugaStronaPrzedmiotow() {
-        throw Niezaimplementowano(nameof(Zadanie10_DrugaStronaPrzedmiotow));
+        // throw Niezaimplementowano(nameof(Zadanie10_DrugaStronaPrzedmiotow));
+        return DaneUczelni.Przedmioty
+            .Skip(2)
+            .Take(2)
+            .Select(n => string.Join(", ", n.Nazwa, n.Kategoria));
     }
 
     /// <summary>
